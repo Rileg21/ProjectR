@@ -100,4 +100,43 @@ var picker = (function() {
     return {
         Picker: Picker
     };
+    // Inside the Picker prototype in picker.js
+
+Picker.prototype.pick = function(picked) {
+    var currentBatch = this.state.evaluating;
+    var survivors = picked || [];
+    var eliminated = currentBatch.filter(function(item) {
+        return survivors.indexOf(item) === -1;
+    });
+
+    // Add eliminated items to history
+    this.state.eliminated.push({
+        id: eliminated,
+        eliminatedBy: survivors
+    });
+
+    // Move survivors to next round
+    this.state.survived = this.state.survived.concat(survivors);
+    this.state.current = this.state.current.filter(function(item) {
+        return currentBatch.indexOf(item) === -1;
+    });
+
+    // Reset batch
+    this.resetBatchSize();
+    this.pushHistory();
+};
+
+Picker.prototype.pass = function() {
+    // Pass = pick all items in the batch
+    this.pick(this.state.evaluating);
+};
+
+Picker.prototype.resetBatchSize = function() {
+    var currentSize = this.state.current.length;
+    var batchSize = this.getBatchSize(currentSize, this.state.settings);
+    batchSize = Math.min(batchSize, currentSize);
+
+    this.state.evaluating = this.state.current.slice(0, batchSize);
+    this.state.current = this.state.current.slice(batchSize);
+};
 })();
