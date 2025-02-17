@@ -40,3 +40,6 @@ button:hover {
     width: 100px;
     height: 100px;
 }
+.item.selected {
+    border: 3px solid #007bff;
+    border-radius: 5px;
