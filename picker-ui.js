@@ -55,3 +55,66 @@ PickerUI.prototype.redo = function() {
     this.picker.redo();
     this.update();
 };
+PickerUI.prototype.update = function() {
+    var self = this;
+    
+    // Clear current UI
+    $(this.elements.evaluating).empty();
+    $(this.elements.favorites).empty();
+
+    // Render evaluating items
+    this.picker.state.evaluating.forEach(function(itemId) {
+        var item = self.picker.items.find(function(i) { return i.id === itemId; });
+        if (item) {
+            var itemElem = self.getItemElem(item, self.picker.state.settings);
+            $(self.elements.evaluating).append(itemElem);
+        }
+    });
+
+    // Render favorites
+    this.picker.state.favorites.forEach(function(itemId) {
+        var item = self.picker.items.find(function(i) { return i.id === itemId; });
+        if (item) {
+            var favoriteElem = self.getItemElem(item, self.picker.state.settings);
+            $(self.elements.favorites).append(favoriteElem);
+        }
+    });
+
+    // Enable/disable buttons
+    $(this.elements.undo).prop('disabled', !this.picker.canUndo());
+    $(this.elements.redo).prop('disabled', !this.picker.canRedo());
+
+    this.onUpdate();
+};
+
+PickerUI.prototype.pick = function() {
+    var selected = $(this.elements.evaluating + ' .selected').map(function() {
+        return $(this).data('id');
+    }).get();
+
+    if (selected.length === 0) {
+        alert(this.messages.mustSelect);
+        return;
+    }
+
+    this.picker.pick(selected);
+    this.update();
+};
+
+// Add click handler for items
+PickerUI.prototype.initialize = function() {
+    var self = this;
+    
+    // Existing button handlers
+    $(this.elements.pick).click(function() { self.pick(); });
+    $(this.elements.pass).click(function() { self.pass(); });
+    $(this.elements.undo).click(function() { self.undo(); });
+    $(this.elements.redo).click(function() { self.redo(); });
+
+    // Item selection handler
+    $(document).on('click', self.elements.evaluating + ' .item', function() {
+        $(this).toggleClass('selected');
+    });
+
+    this.update();
+};
