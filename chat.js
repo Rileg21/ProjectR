@@ -1,5 +1,5 @@
 // Replace with your Hugging Face API token
-const API_TOKEN = 'YOUR_HF_API_TOKEN';
+const API_TOKEN = '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';
 const API_URL = 'https://api-inference.huggingface.co/models/gpt2';
 
 async function sendMessage() {
